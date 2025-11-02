@@ -24,6 +24,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t e
     } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
         ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
         printf("Got IP: " IPSTR "\n", IP2STR(&event->ip_info.ip));
+        xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
     }
 }
 
@@ -66,7 +67,7 @@ static void http_get_example(void) {
         .cert_pem = NULL,
     };
 
-    printf("===Performing HTTP GET===\n");
+    printf("=== Performing HTTP GET ===\n");
     esp_http_client_handle_t client = esp_http_client_init(&config);
     esp_err_t err  = esp_http_client_perform(client);
 
@@ -95,7 +96,7 @@ static void http_post_example(void) {
 
     esp_err_t err = esp_http_client_perform(client);
     if (err == ESP_OK) {
-        printf("POST Status = %d, content_length = %lld",
+        printf("POST Status = %d, content_length = %lld\n",
                 esp_http_client_get_status_code(client), 
                 esp_http_client_get_content_length(client));
     } else {
