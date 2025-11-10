@@ -18,8 +18,7 @@
 #define MQTT_BROKER_URI "mqtt://192.168.1.1:1883"
 #define OTA_TOPIC "ota/update"
 
-static void wifi_init_sta(void)
-{
+static void wifi_init_sta(void) {
     esp_netif_init();
     esp_event_loop_create_default();
     esp_netif_create_default_wifi_sta();
@@ -29,8 +28,8 @@ static void wifi_init_sta(void)
 
     wifi_config_t wifi_config = {
         .sta = {
-            .ssid = WIFI_SSID,
-            .password = WIFI_PASS,
+            .ssid = SSID,
+            .password = PASS,
         },
     };
 
@@ -38,7 +37,14 @@ static void wifi_init_sta(void)
     esp_wifi_set_config(WIFI_IF_STA, &wifi_config);
     esp_wifi_start();
 
-    printf("Connecting to Wifi...");
+    printf("Connecting to WiFi...\n");
+    esp_wifi_connect();
+    vTaskDelay(pdMS_TO_TICKS(6000));
+
+    esp_netif_t *netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+    esp_netif_ip_info_t ip_info;
+    esp_netif_get_ip_info(netif, &ip_info);
+    printf("ESP32 IP Address: " IPSTR "\n", IP2STR(&ip_info.ip));
 }
 
 static void perform_ota(const char *url)
